@@ -46,7 +46,17 @@ class MedicineDoserTest {
 
     @Test
     void dosingWithoutCorrecPackageShouldReturnDosingResultError() {
+        Receipe receipe = new ReceipeBuilder()
+                .withDose(
+                        Dose.of(Capacity.of(20, CapacityUnit.MILILITER), Period.of(0, TimeUnit.SECONDS))
+                )
+                .build();
 
+        doser.add(MedicinePackage.of(receipe.getMedicine(), Capacity.of(19, CapacityUnit.MILILITER)));
+
+        assertThrows(InsufficientMedicineException.class, () -> {
+           doser.dose(receipe);
+        });
     }
 
     @Test
