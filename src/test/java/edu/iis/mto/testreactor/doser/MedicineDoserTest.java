@@ -2,15 +2,15 @@ package edu.iis.mto.testreactor.doser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
 import edu.iis.mto.testreactor.doser.infuser.Infuser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.concurrent.TimeUnit;
 
 @ExtendWith(MockitoExtension.class)
 class MedicineDoserTest {
@@ -38,11 +38,14 @@ class MedicineDoserTest {
 
     @Test
     void dosingWithoutAnyPackagesShouldResultInUnavailableMedicineException() {
-        
+        Receipe recipe = ReceipeBuilder.ANY_RECIPE;
+        assertThrows(UnavailableMedicineException.class, () -> {
+            doser.dose(recipe);
+        });
     }
 
     @Test
-    void dosingWithTooSmallPackageShouldReturnDosingResultError() {
+    void dosingWithoutCorrecPackageShouldReturnDosingResultError() {
 
     }
 
