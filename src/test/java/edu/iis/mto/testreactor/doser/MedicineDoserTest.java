@@ -57,7 +57,7 @@ class MedicineDoserTest {
 
         doser.add(
                 (new PackageBuilder()).withCapacity(Capacity.of(19, CapacityUnit.MILILITER))
-                .build()
+                        .build()
         );
 
         assertThrows(InsufficientMedicineException.class, () -> {
@@ -82,5 +82,27 @@ class MedicineDoserTest {
         DosingResult result = doser.dose(ReceipeBuilder.ANY_RECIPE);
 
         assertEquals(DosingResult.SUCCESS, result);
+    }
+
+
+    @Test
+    void dispensing0DosesOfMedicineIn100mLPackages() {
+        doser.add(
+                (new PackageBuilder())
+                        .withCapacity(Capacity.of(100, CapacityUnit.MILILITER))
+                        .build()
+        );
+
+        Receipe receipe = (new ReceipeBuilder())
+                .withDose(Dose.of(
+                        Capacity.of(100, CapacityUnit.MILILITER),
+                        Period.of(0, TimeUnit.SECONDS)))
+                .withNumber(0)
+                .build();
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            DosingResult result = doser.dose(receipe);
+        });
+
     }
 }
