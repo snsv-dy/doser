@@ -2,12 +2,16 @@ package edu.iis.mto.testreactor.doser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import edu.iis.mto.testreactor.doser.infuser.Infuser;
+import edu.iis.mto.testreactor.doser.infuser.InfuserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Any;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.TimeUnit;
@@ -16,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 class MedicineDoserTest {
 
     @Mock
-    private Infuser infuzer;
+    private Infuser infuser;
     @Mock
     private Clock clock;
     @Mock
@@ -33,7 +37,7 @@ class MedicineDoserTest {
 
     @BeforeEach
     void setUp() {
-        doser = new MedicineDoser(infuzer, log, clock);
+        doser = new MedicineDoser(infuser, log, clock);
     }
 
     @Test
@@ -60,13 +64,22 @@ class MedicineDoserTest {
     }
 
     @Test
-    void errorRelatedToDispensingDoseShouldBeLogged() {
+    void errorRelatedToDispensingDoseShouldBeLogged() throws InfuserException {
+        doThrow(new InfuserException()).when(infuser).dispense(any(), any());
+        doser.add(MedicinePackage.of(Medicine.of("alantan"), Capacity.of(100, CapacityUnit.MILILITER)));
 
+        doser.dose(ReceipeBuilder.ANY_RECIPE);
+
+        verify(log).logDifuserError(any(), any());
     }
 
     @Test
-    void dispensing3DosesOfMedicineIn20mLPackages() {
+    void dispensing1DoseOfMedicineIn100mLPackages() {
+        doser.add(MedicinePackage.of(Medicine.of("alantan"), Capacity.of(100, CapacityUnit.MILILITER)));
 
+        DosingResult result = doser.dose(ReceipeBuilder.ANY_RECIPE);
+
+        assertEquals(DosingResult.SUCCESS, result);
     }
 
 
