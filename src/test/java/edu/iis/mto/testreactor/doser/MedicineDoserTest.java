@@ -34,7 +34,6 @@ class MedicineDoserTest {
     }
 
 
-
     @BeforeEach
     void setUp() {
         doser = new MedicineDoser(infuser, log, clock);
@@ -56,17 +55,20 @@ class MedicineDoserTest {
                 )
                 .build();
 
-        doser.add(MedicinePackage.of(receipe.getMedicine(), Capacity.of(19, CapacityUnit.MILILITER)));
+        doser.add(
+                (new PackageBuilder()).withCapacity(Capacity.of(19, CapacityUnit.MILILITER))
+                .build()
+        );
 
         assertThrows(InsufficientMedicineException.class, () -> {
-           doser.dose(receipe);
+            doser.dose(receipe);
         });
     }
 
     @Test
     void errorRelatedToDispensingDoseShouldBeLogged() throws InfuserException {
         doThrow(new InfuserException()).when(infuser).dispense(any(), any());
-        doser.add(MedicinePackage.of(Medicine.of("alantan"), Capacity.of(100, CapacityUnit.MILILITER)));
+        doser.add(PackageBuilder.ANY_PACKAGE);
 
         doser.dose(ReceipeBuilder.ANY_RECIPE);
 
@@ -75,12 +77,10 @@ class MedicineDoserTest {
 
     @Test
     void dispensing1DoseOfMedicineIn100mLPackages() {
-        doser.add(MedicinePackage.of(Medicine.of("alantan"), Capacity.of(100, CapacityUnit.MILILITER)));
+        doser.add(PackageBuilder.ANY_PACKAGE);
 
         DosingResult result = doser.dose(ReceipeBuilder.ANY_RECIPE);
 
         assertEquals(DosingResult.SUCCESS, result);
     }
-
-
 }
